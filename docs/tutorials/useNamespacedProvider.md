@@ -226,6 +226,12 @@ export default function App() {
 }
 ```
 
+:::tip
+
+Each time you complete the survey, the namespaced provider `<Provider namespace="survey" />` will be unmounted. When you click 'Begin' again, a new `useSurvey` store will be created.
+
+:::
+
 ## Full Example
 
 Here’s the complete survey application, running on CodeSandbox.
