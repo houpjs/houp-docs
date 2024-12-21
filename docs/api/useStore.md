@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 `useStore` is a React hook that returns the state of a registered store.
 
 ```tsx
@@ -30,30 +34,26 @@ const state = useStore(useProduct, s => ({price: s.price}));
 
 ### I got a warning: `The store has been unmounted from its Provider. This usually occurs when the Provider is unmounted, and you should avoid using a store that was registered to that Provider.`
 
-This usually happens when you use a local provider in a component, but continue to use the store from that provider after the component has unmounted. For example, if you create a local provider, `LocalProvider`, and register a store with it, you should typically only call `useStore(useProduct)` within the `<Rest />` component. However, if you call useStore in another place, you may encounter this warning after the `Component` is unmounted.
-
-```tsx
-export const LocalProvider = createProvider();
-```
+This usually happens when you use a namespaced provider in a component, but continue to use the store from that provider after the component has unmounted. For example, if you use a namespaced provider, like `<Provider namespace="test" />`, and register a store to that namespace, you should typically only call `useStore(useProduct)` within the `<Rest />` component. However, if you call useStore in another place, you may encounter this warning after the `Component` is unmounted.
 
 ``` tsx
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { registerStore } from "houp";
-import { LocalProvider } from "./provider";
 
 export default function useProduct() {
     return useState(0);
 }
 
-registerStore(useProduct, LocalProvider);
+registerStore(useProduct, "test");
 ```
 
 ```tsx
-import { LocalProvider } from "./provider";
+import { Provider } from "houp";
+
 function Component() {
     return (
         <>
-        <LocalProvider />
+        <Provider namespace="test" />
         <Rest />
         </>
     );
@@ -62,7 +62,7 @@ function Component() {
 
 ### I got an error: `Unable to find store. This usually occurs when the Provider is not added to the App or has been unmounted.`
 
-If you are using a global `<Provider />`, it should be added at the top level of the App. If you are using a local provider, it should be placed above all components that use the store within that local provider.
+If you are using global namespace `<Provider />`, it should be added at the top level of the App. If you're using a namespaced provider, it should be placed above all components that access stores in that namespace.
 
 ### I got an error: `The store has not been registered yet. Did you forget to call registerStore to register it?`
 
