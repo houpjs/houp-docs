@@ -33,15 +33,19 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </StrictMode>,
 )
-
 ```
+
+:::tip
+
+Make sure to place `<Provider />` before any component that will use the store provided by it.
+
+:::
 
 ## Register a store
 
 Any React Hook can be registered as a store and shared across components.
 
-``` tsx
-// useProduct.js
+``` tsx title="useProduct.ts"
 import { useCallback, useState } from "react";
 import { registerStore } from "houp";
 
@@ -105,7 +109,11 @@ export function Updater() {
 }
 ```
 
-> You may have noticed that the `ProductCount` component re-renders even when you click the `update price` button. This happens because `useStore` fetches all the data from the store, causing the component to re-render on every state change. To re-render the component only when specific state values like `count` or `price` change, you should use `useStore` with a selector.
+:::info
+
+You may have noticed that the `ProductCount` component re-renders even when you click the `update price` button. This happens because `useStore` fetches all the data from the store, causing the component to re-render on every state change. To re-render the component only when specific state values like `count` or `price` change, you should use `useStore` with a selector.
+
+:::
 
 ## Using `useStore` with a selector
 

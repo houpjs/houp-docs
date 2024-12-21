@@ -12,4 +12,8 @@ unregisterStore(hook: StoreHook): void
 
 - `hook`: The hook to be unregistered.
 
-> **NOTE**: Before unregistering a store, ensure that no other part of the application is using it, as this may cause unexpected behavior.
+:::warning
+
+Before unregistering a store, ensure that no other part of the application is using it, as this may cause unexpected behavior.
+
+:::

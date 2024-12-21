@@ -41,6 +41,12 @@ createRoot(document.getElementById("root")!).render(
 
 ```
 
+:::tip
+
+Make sure to place `<Provider />` before any component that will use the store provided by it.
+
+:::
+
 ## Namespaced provider
 
 ```tsx
