@@ -51,10 +51,13 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-
+  
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    metadata: [
+      {name: 'google-site-verification', content: '2Mfn2ZRXSNlLSIDNNcngVgNrBjcTgKK8iY_BD4HDXQg'},
+    ],
     navbar: {
       title: 'Houp',
       // logo: {
