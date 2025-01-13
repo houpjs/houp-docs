@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 `useStore` is a React hook that returns the state of a registered store.
@@ -7,7 +7,7 @@ sidebar_position: 3
 ```tsx
 useStore<S>(hook: StoreHook<S>): S;
 useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T): T;
-useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T, isEqual: ((a: T, b: T) => boolean)): T;
+useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T, isEqual: ((current: T, next: T) => boolean)): T;
 ```
 
 ## Parameters
@@ -22,53 +22,161 @@ useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T, isEqual: ((a: T, b
 
 ## Usage
 
-```tsx
-const state = useStore(useProduct);
-```
+Let's create a `useProduct` hook to use as a store and add the provider at the root of the app.
 
-```tsx
-const state = useStore(useProduct, s => ({price: s.price}));
-```
-
-## Troubleshooting
-
-### I got a warning: `The store has been unmounted from its Provider. This usually occurs when the Provider is unmounted, and you should avoid using a store that was registered to that Provider.`
-
-This usually happens when you use a namespaced provider in a component, but continue to use the store from that provider after the component has unmounted. For example, if you use a namespaced provider, like `<Provider namespace="test" />`, and register a store to that namespace, you should typically only call `useStore(useProduct)` within the `<Rest />` component. However, if you call useStore in another place, you may encounter this warning after the `Component` is unmounted.
-
-``` tsx
+``` tsx title="useProduct.ts"
 import { useState } from "react";
-import { registerStore } from "houp";
 
 export default function useProduct() {
-    return useState(0);
-}
+    const [price, setPrice] = useState(5);
+    const [count, setCount] = useState(100);
 
-registerStore(useProduct, "test");
+    return {
+        price,
+        count,
+        setPrice,
+        setCount,
+    };
+}
 ```
 
-```tsx
-import { Provider } from "houp";
+```tsx title="provider.ts"
+import useProduct from "./useProduct";
+import { createProvider } from "houp";
 
-function Component() {
+export const Provider = createProvider([useProduct]);
+```
+
+```tsx title="main.tsx"
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import { Provider } from "./provider";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Provider>
+      <App />
+    </Provider>
+  </StrictMode>,
+)
+```
+
+### useStore
+
+`useStore` fetches all the data from the `useProduct` store, causing the component to re-render on every state change. To re-render the component only when specific state values like `count` or `price` change, you should use `useStore` with a selector.
+
+``` tsx title="Product.ts"
+import { useStore } from "houp";
+import useProduct from "./useProduct";
+
+export function Product() {
+    const store = useStore(useProduct);
+
     return (
         <>
-        <Provider namespace="test" />
-        <Rest />
+            <div>count: {store.count}</div>
         </>
     );
 }
 ```
 
-### I got an error: `Unable to find store. This usually occurs when the Provider is not added to the App or has been unmounted.`
+### Using `useStore` with a selector
 
-If you are using global namespace `<Provider />`, it should be added at the top level of the App. If you're using a namespaced provider, it should be placed above all components that access stores in that namespace.
+`useStore` supports a `selector` argument. The `selector` allows you to choose specific state from the store, so the component will only re-render when the selected state changes. 
 
-### I got an error: `The store has not been registered yet. Did you forget to call registerStore to register it?`
+``` tsx title="Product.ts"
+import { useStore } from "houp";
+import useProduct from "./useProduct";
 
-This usually happens when you call useStore, but the store has not been registered yet.
+export function Product() {
+    const store = useStore(useProduct, s => ({ count: s.count }));
+
+    return (
+        <>
+            <div>count: {store.count}</div>
+        </>
+    );
+}
+```
+
+### Specify your own `isEqual` function
+
+You can also provide your own `isEqual` function to compare two values and determine equality. If not provided, shallow comparison is used by default.
+
+``` tsx title="Product.ts"
+import { useStore } from "houp";
+import useProduct from "./useProduct";
+
+export function Product() {
+    const store = useStore(useProduct, s => ({ count: s.count }), (current, next) => next.count <= 110);
+
+    return (
+        <>
+            <div>count: {store.count}</div>
+        </>
+    );
+}
+```
+
+:::info
+
+This component will only re-render when the count > 110.
+
+:::
+
+## Troubleshooting
+
+### I got an error: `Unable to find store. This usually occurs when the StoreProvider is not added to the App.`
+
+This usually happens when you call `useStore`, but you have not added any provider to the component tree.
 
 ```tsx
-// useProduct has not been registered.
+// cannot find useProduct in the component tree.
 const state = useStore(useProduct);
+```
+
+Create a provider with `useProduct` will fix the issue.
+
+```tsx title="provider.ts"
+import useProduct from "./useProduct";
+import { createProvider } from "houp";
+
+export const Provider = createProvider([useProduct]);
+```
+
+```tsx title="main.tsx"
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import { Provider } from "./provider";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    // highlight-next-line
+    <Provider>
+      <App />
+    // highlight-next-line
+    </Provider>
+  </StrictMode>,
+)
+```
+
+### I got an error: `Unable to find store. Did you forget to add it when calling createProvider?`
+
+This usually happens when you call `useStore`, but we cannot find it in the provider.
+
+```tsx
+// cannot find useProduct in the provider.
+const state = useStore(useProduct);
+```
+
+Make sure to add `useProduct` as a parameter when creating the provider.
+
+```tsx title="provider.ts"
+import useProduct from "./useProduct";
+import { createProvider } from "houp";
+
+// highlight-next-line
+export const Provider = createProvider([useProduct]);
 ```

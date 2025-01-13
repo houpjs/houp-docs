@@ -7,6 +7,7 @@ title: Getting Started
 
 Houp(hook up) is a simple, fast, and reliable solution for sharing state across multiple components. Whether you're working on a new project or an existing one, integrating Houp is straightforward. It doesn't matter how the state is created or managed — Houp focuses solely on sharing it.
 
+
 ## Installation
 
 ```
@@ -15,48 +16,30 @@ npm install houp
 
 ## Play in Codesandbox
 
-[![Edit infallible-villani-89k5vf](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/infallible-villani-89k5vf)
+<!-- [![Edit infallible-villani-89k5vf](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/infallible-villani-89k5vf) -->
 
-## Add `<Provider />`
+<iframe src="https://codesandbox.io/embed/89k5vf?view=editor+%2B+preview&module=%2Fsrc%2FProduct.tsx"
+     style={{width:"100%", height: 500, border:0, borderRadius: 4, overflow:"hidden",}}
+     title="houp-sample"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>
 
-Add `<Provider />` at the top of your App. `<Provider />` is a regular function component, not a Context Provider, so it doesn't need to wrap the App. This means that `<Provider />` and the App will not affect each other. However, it's important to render it before any component that uses `useStore`, which is why it should be placed above the App.
+## Create your hook
 
-``` tsx
-import { StrictMode } from "react"
-import { createRoot } from "react-dom/client"
-import App from "./App.tsx"
-import { Provider } from "houp"
-
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider />
-    <App />
-  </StrictMode>,
-)
-```
-
-:::tip
-
-Make sure to place `<Provider />` before any component that will use the store provided by it.
-
-:::
-
-## Register a store
-
-Any React Hook can be registered as a store and shared across components.
+Any React hook can be used as a store and shared across components.
 
 ``` tsx title="useProduct.ts"
-import { useCallback, useState } from "react";
-import { registerStore } from "houp";
+import { useState } from "react";
 
 export default function useProduct() {
     const [price, setPrice] = useState(5);
     const [count, setCount] = useState(100);
 
-    const updatePrice = useCallback(async () => {
+    const updatePrice = async () => {
         // await fetch(...)
         setPrice(n => n + 1);
-    }, []);
+    };
 
     return {
         price,
@@ -65,8 +48,36 @@ export default function useProduct() {
         setCount,
     };
 }
+```
 
-registerStore(useProduct);
+## Create a Provider
+
+`createProvider` creates a `StoreProvider` component that provides the store to its child components. It takes an array of hooks as a parameter, which will be used as the store. Now, we pass `useProduct` as a parameter to `createProvider`.
+
+```tsx title="provider.ts"
+import useProduct from "./useProduct";
+import { createProvider } from "houp";
+
+export const Provider = createProvider([useProduct]);
+```
+
+## Add the Provider to your app
+
+We add the `Provider` at the root of our app so that we can use the store anywhere within the app.
+
+```tsx title="main.tsx"
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import { Provider } from "./provider";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Provider>
+      <App />
+    </Provider>
+  </StrictMode>,
+)
 ```
 
 ## Now, use it in your components, and you're all set!
@@ -120,7 +131,8 @@ You may have noticed that the `ProductCount` component re-renders even when you 
 `useStore` supports both a `selector` and an `isEqual` argument. The `selector` allows you to choose specific state from the store, so the component will only re-render when the selected state changes. By default, it detects changes using shallow equality. For more control over re-rendering, you can provide a custom equality function via the `isEqual` parameter.
 
 ``` tsx
-useStore(hook, selector?, isEqual?);
+useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T): T;
+useStore<S, T>(hook: StoreHook<S>, selector: (state: S) => T, isEqual: ((current: T, next: T) => boolean)): T;
 ```
 
 Now, let's use `selector` to optimize the components mentioned above.

@@ -1,0 +1,200 @@
+---
+sidebar_position: 1
+sidebar_label: Use scoped store
+title: Use scoped store
+---
+import { Provider } from "@site/src/components/tutorials/useScopedStore/provider";
+import WithoutScopedCounter from "@site/src/components/tutorials/useScopedStore/withoutScoped";
+import WithScopedCounter from "@site/src/components/tutorials/useScopedStore/withScoped";
+
+This tutorial will guide you on how to implement a scoped store. 
+In this tutorial, we'll create a simple `Counter` component, which contains two components: `Label` and `Updater`. 
+The `Label` component displays the current count, while the `Updater` component provides functionality to update the count.
+
+## Setup
+
+Add Houp in you project.
+
+```tsx
+npm install houp
+```
+
+## Create `useCounter` hook
+
+```tsx title="src/useCounter.tsx"
+import { useState } from "react";
+
+export default function useCounter() {
+    const [count, setCount] = useState(0);
+
+    return {
+        count,
+        setCount,
+    };
+}
+```
+
+## Create a Provider and add it to your app
+
+```tsx title="provider.ts"
+import useCounter from "./useCounter";
+import { createProvider } from "houp";
+
+export const Provider = createProvider([useCounter]);
+```
+
+```tsx title="main.tsx"
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import { Provider } from "./provider";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Provider>
+      <App />
+    </Provider>
+  </StrictMode>,
+)
+```
+
+## Create the Counter component
+
+The `Updater` component has two buttons: `increase` and `decrease`. 
+The `increase` button increases the count by 1, and the `decrease` button decreases the count by 1.
+
+```tsx title="src/counter.tsx"
+import { useStore } from "houp";
+import useCounter from "./useCounter";
+
+function Label() {
+    const counter = useStore(useCounter);
+
+    return (
+        <>
+            <div>{counter.count}</div>
+        </>
+    );
+}
+
+function Updater() {
+    const counter = useStore(useCounter);
+
+    return (
+        <>
+            <button onClick={() => counter.setCount(n => n + 1)}>increase</button>
+            <button onClick={() => counter.setCount(n => n - 1)}>decrease</button>
+        </>
+    );
+}
+
+export default function Counter() {
+    return (
+        <>
+            <Label />
+            <Updater />
+        </>
+    );
+}
+```
+
+<div class="code-run-block">
+    <Provider>
+        <WithoutScopedCounter />
+    </Provider>
+</div>
+
+The number will be changed when we click the buttons, and it works as expected. 
+Currently, we have added only one `Counter` component. 
+What happens if we add multiple `Counter` components? Let's add two `Counter` components and see what happens when we click the buttons.
+
+<div class="code-run-block">
+    <Provider>
+        <WithoutScopedCounter />
+        <WithoutScopedCounter />
+    </Provider>
+</div>
+
+:::info
+
+You've probably discovered the problem. Every time you click the button to change the number, 
+the number in the another `Counter` component will also change. 
+Since we use `useStore(useCounter)` to manage the state, it gets shared across the entire application, 
+but this is not what we want. We want the states of the `Counter` components to be independent of each other.
+
+:::
+
+## Add a provider to create a scoped store
+
+Now, let's modify the `Counter` component to use the `useCount` store as a scoped store.
+
+```tsx title="src/counter.tsx"
+// red-next-line
+import { useStore } from "houp";
+// green-next-line
+import { createProvider, useStore } from "houp/lib";
+import { useCounter } from "./useCounter";
+
+// green-next-line
+const Provider = createProvider([useCounter]);
+
+function Label() {
+    const counter = useStore(useCounter);
+
+    return (
+        <>
+            <div>{counter.count}</div>
+        </>
+    );
+}
+
+function Updater() {
+    const counter = useStore(useCounter);
+
+    return (
+        <>
+            <button onClick={() => counter.setCount(n => n + 1)}>increase</button>
+            <button onClick={() => counter.setCount(n => n - 1)}>decrease</button>
+        </>
+    );
+}
+
+export default function Counter() {
+    return (
+        // red-next-line
+        <>
+        // green-next-line
+        <Provider>
+            <Label />
+            <Updater />
+        // red-next-line
+        </>
+        // green-next-line
+        </Provider>
+    );
+}
+```
+
+:::info
+
+`createProvider` function creates a `Provider` component with an array of hooks as its parameter, 
+which will be used in the `Counter` component. We use the `Provider` component as the root of the `Counter` component. 
+Now, click the button to see if the two `Counter` components still affect each other.
+
+:::
+
+<div class="code-run-block">
+    <WithScopedCounter />
+    <WithScopedCounter />
+</div>
+
+## Full Example
+
+Here's the complete example, running on CodeSandbox.
+
+<iframe src="https://codesandbox.io/embed/78sxzm?view=editor+%2B+preview&module=%2Fsrc%2Fcounter.tsx"
+     style={{width:"100%", height: 500, border:0, borderRadius: 4, overflow:"hidden",}}
+     title="houp-use-scoped-store-sample"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>

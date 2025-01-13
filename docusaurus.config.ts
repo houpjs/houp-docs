@@ -1,5 +1,5 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
+import { themes as prismThemes } from 'prism-react-renderer';
+import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
@@ -51,12 +51,12 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-  
+
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     metadata: [
-      {name: 'google-site-verification', content: '2Mfn2ZRXSNlLSIDNNcngVgNrBjcTgKK8iY_BD4HDXQg'},
+      { name: 'google-site-verification', content: '2Mfn2ZRXSNlLSIDNNcngVgNrBjcTgKK8iY_BD4HDXQg' },
     ],
     navbar: {
       title: 'Houp',
@@ -122,6 +122,24 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      magicComments: [
+        // Remember to extend the default highlight class name as well!
+        {
+          className: 'theme-code-block-highlighted-line',
+          line: 'highlight-next-line',
+          block: { start: 'highlight-start', end: 'highlight-end' },
+        },
+        {
+          className: 'code-block-red-line',
+          line: 'red-next-line',
+          block: { start: 'red-start', end: 'red-end' },
+        },
+        {
+          className: 'code-block-green-line',
+          line: 'green-next-line',
+          block: { start: 'green-start', end: 'green-end' },
+        },
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };

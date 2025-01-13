@@ -1,0 +1,185 @@
+---
+sidebar_position: 2
+sidebar_label: How to reset store
+title: How to reset store
+---
+import { Provider } from "@site/src/components/tutorials/resetStore/provider";
+import Product from "@site/src/components/tutorials/resetStore/product";
+
+This tutorial will guide you on how use `useProvider` hook to reset the store in the provider.
+`useProvider` is a React hook that helps find the nearest `StoreProvider` that contains the specified hook in the component tree and returns a `Provider` object for managing the store within the provider.
+
+In this tutorial, we'll create a simple `Product` component that contains two sub components: `Label` and `Updater`. The `Label` component displays the current count and price, while the `Updater` component allows you to update the count and price.
+
+## Setup
+
+Add Houp in you project.
+
+```tsx
+npm install houp
+```
+
+## Create `useCount` and `usePrice` hook
+
+```tsx title="src/useCount.tsx"
+import { useState } from "react";
+
+export default function useCount() {
+    const [count, setCount] = useState(10);
+
+    return {
+        count,
+        setCount,
+    };
+}
+```
+
+```tsx title="src/usePrice.tsx"
+import { useState } from "react";
+
+export default function usePrice() {
+    const [price, setPrice] = useState(5);
+
+    return {
+        price,
+        setPrice,
+    };
+}
+```
+
+## Create a Provider and add it to your app
+
+```tsx title="provider.ts"
+import useCount from "./useCount";
+import usePrice from "./usePrice";
+import { createProvider } from "houp";
+
+export const Provider = createProvider([useCount, usePrice]);
+```
+
+```tsx title="main.tsx"
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import { Provider } from "./provider";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <Provider>
+      <App />
+    </Provider>
+  </StrictMode>,
+)
+```
+
+## Create the Product component
+
+The `Updater` component has seven buttons: `count+1`, `count-1`, `reset count`, `price+1`, `price-1`, `reset price` and `reset all`. 
+
+The `count+1` button increases the count by 1, and the `count-1` button decreases the count by 1.
+
+The `reset count` button resets the count to 10.
+
+The `price+1` button increases the price by 1, and the `price-1` button decreases the price by 1.
+
+The `reset price` button resets the price to 5.
+
+The `reset all` button resets the count to 10 and the price to 5.
+
+```tsx title="product.tsx"
+import { useProvider, useStore } from "houp/lib";
+import useCount from "./useCount";
+import usePrice from "./usePrice";
+
+
+function Label() {
+    const countStore = useStore(useCount);
+    const priceStore = useStore(usePrice);
+
+    return (
+        <>
+            <div>Count: {countStore.count}</div>
+            <div>Price: {priceStore.price}</div>
+        </>
+    );
+}
+
+function Updater() {
+    const countStore = useStore(useCount);
+    const priceStore = useStore(usePrice);
+    // highlight-next-line
+    const provider = useProvider(useCount);
+    // const provider = useProvider(usePrice);
+
+    return (
+        <>
+            <button onClick={() => countStore.setCount(n => n + 1)}>count+1</button>
+            <button onClick={() => countStore.setCount(n => n - 1)}>count-1</button>
+            // highlight-next-line
+            <button onClick={() => provider.resetStore(useCount)}>reset count</button>
+            <button onClick={() => priceStore.setPrice(n => n + 1)}>price+1</button>
+            <button onClick={() => priceStore.setPrice(n => n - 1)}>price-1</button>
+            // highlight-next-line
+            <button onClick={() => provider.resetStore(usePrice)}>reset price</button>
+            // highlight-next-line
+            <button onClick={() => provider.resetAllStore()}>reset all</button>
+        </>
+    );
+}
+
+export default function Product() {
+    return (
+        <>
+            <Label />
+            <Updater />
+        </>
+    );
+}
+```
+
+<div class="code-run-block">
+    <Provider>
+        <Product />
+    </Provider>
+</div>
+
+:::info
+
+`useProvider(useCount)` and `useProvider(usePrice)` will return the same `Provider` object because they are within the same provider.
+
+:::
+
+
+:::note
+
+If your store has side effects, resetting it will trigger the effect again. For example, with the `useCount` store, the `useCount mounted` message will be logged after the reset.
+
+```tsx
+import { useState, useEffect } from "react";
+
+export default function useCount() {
+    const [count, setCount] = useState(5);
+
+    useEffect(() => {
+        console.log("useCount mounted");
+    }, []);
+
+    return {
+        count,
+        setCount,
+    };
+}
+```
+
+:::
+
+## Full Example
+
+Here's the complete example, running on CodeSandbox.
+
+<iframe src="https://codesandbox.io/embed/v5kknh?view=editor+%2B+preview&module=%2Fsrc%2Fproduct.tsx"
+     style={{width:"100%", height: 500, border:0, borderRadius: 4, overflow:"hidden",}}
+     title="houp-reset-store-sample"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>
