@@ -87,7 +87,7 @@ The `reset price` button resets the price to 5.
 The `reset all` button resets the count to 10 and the price to 5.
 
 ```tsx title="product.tsx"
-import { useProvider, useStore } from "houp/lib";
+import { useProvider, useStore } from "houp";
 import useCount from "./useCount";
 import usePrice from "./usePrice";
 
@@ -137,18 +137,17 @@ export default function Product() {
 }
 ```
 
-<div class="code-run-block">
-    <Provider>
-        <Product />
-    </Provider>
-</div>
-
 :::info
 
 `useProvider(useCount)` and `useProvider(usePrice)` will return the same `Provider` object because they are within the same provider.
 
 :::
 
+<div class="code-run-block">
+    <Provider>
+        <Product />
+    </Provider>
+</div>
 
 :::note
 
