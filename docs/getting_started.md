@@ -65,7 +65,7 @@ export const Provider = createProvider([useProduct]);
 
 We add the `Provider` at the root of our app so that we can use the store anywhere within the app.
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"

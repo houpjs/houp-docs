@@ -8,7 +8,7 @@ import WithoutScopedCounter from "@site/src/components/tutorials/useScopedStore/
 import WithScopedCounter from "@site/src/components/tutorials/useScopedStore/withScoped";
 
 This tutorial will guide you on how to implement a scoped store. 
-In this tutorial, we'll create a simple `Counter` component, which contains two components: `Label` and `Updater`. 
+In this tutorial, we'll create a simple `Counter` component, which contains two sub components: `Label` and `Updater`. 
 The `Label` component displays the current count, while the `Updater` component provides functionality to update the count.
 
 ## Setup
@@ -21,7 +21,7 @@ npm install houp
 
 ## Create `useCounter` hook
 
-```tsx title="src/useCounter.tsx"
+```tsx title="useCounter.ts"
 import { useState } from "react";
 
 export default function useCounter() {
@@ -43,7 +43,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([useCounter]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
@@ -63,7 +63,7 @@ createRoot(document.getElementById("root")!).render(
 The `Updater` component has two buttons: `increase` and `decrease`. 
 The `increase` button increases the count by 1, and the `decrease` button decreases the count by 1.
 
-```tsx title="src/counter.tsx"
+```tsx title="counter.tsx"
 import { useStore } from "houp";
 import useCounter from "./useCounter";
 
@@ -117,10 +117,13 @@ What happens if we add multiple `Counter` components? Let's add two `Counter` co
 
 :::info
 
-You've probably discovered the problem. Every time you click the button to change the number, 
-the number in the another `Counter` component will also change. 
-Since we use `useStore(useCounter)` to manage the state, it gets shared across the entire application, 
-but this is not what we want. We want the states of the `Counter` components to be independent of each other.
+You've probably noticed the problem: every time you click the button to change the number, 
+the number in the other `Counter` component also changes.
+
+This happens because we are using `useStore(useCounter)` to manage state. 
+What this does is find the nearest `StoreProvider` in the component tree that contains the specified hook and returns the hook's state from that provider. 
+Currently, the nearest `StoreProvider` is the root provider, meaning the state is shared across the entire application. 
+However, this isn't what we want. We want the state of each `Counter` component to be independent of the others.
 
 :::
 
@@ -128,7 +131,7 @@ but this is not what we want. We want the states of the `Counter` components to 
 
 Now, let's modify the `Counter` component to use the `useCount` store as a scoped store.
 
-```tsx title="src/counter.tsx"
+```tsx title="counter.tsx"
 // red-next-line
 import { useStore } from "houp";
 // green-next-line
@@ -177,8 +180,8 @@ export default function Counter() {
 
 :::info
 
-`createProvider` function creates a `Provider` component with an array of hooks as its parameter, 
-which will be used in the `Counter` component. We use the `Provider` component as the root of the `Counter` component. 
+`createProvider` function creates a `StoreProvider` component with an array of hooks as its parameter, 
+which will be used in the `Counter` component. We use the `StoreProvider` component as the root of the `Counter` component. 
 Now, click the button to see if the two `Counter` components still affect each other.
 
 :::

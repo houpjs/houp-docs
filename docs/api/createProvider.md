@@ -30,7 +30,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([someHook, someHook2]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
@@ -65,17 +65,17 @@ import { createProvider } from "houp";
 export const App2Provider = createProvider([someHook, someHook3, someHook4]);
 ```
 
-``` tsx title="main.tsx"
+``` tsx title="index.tsx"
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App";
+import App1 from "./App1";
 import App2 from "./App2";
 import { App1Provider } from "./provider1";
 import { App2Provider } from "./provider2";
 
 createRoot(document.getElementById("root1")!).render(
     <App1Provider>
-        <App />
+        <App1 />
     </App1Provider>
 )
 
@@ -87,13 +87,13 @@ createRoot(document.getElementById("root2")!).render(
 
 ```
 
-In this case, `App` uses `App1Provider`, while `App2` uses `App2Provider`. 
-In `App` or `App2`, you can use the following code to access the store.
+In this case, `App1` uses `App1Provider`, while `App2` uses `App2Provider`. 
+In `App1` or `App2`, you can use the following code to access the store.
 
-```tsx title="component in App"
+```tsx title="component in App1 or App2"
 import { useStore } from "houp";
 
-useStore(someHook);
+const store = useStore(someHook);
 ```
 
-This will ensure that the stores in `App` and `App2` are independent of each other, even though they use the same hook.
+This will ensure that the stores in `App1` and `App2` are independent of each other, even though they use the same hook.

@@ -21,7 +21,7 @@ npm install houp
 
 ## Create `useCount` and `usePrice` hook
 
-```tsx title="src/useCount.tsx"
+```tsx title="useCount.tsx"
 import { useState } from "react";
 
 export default function useCount() {
@@ -34,7 +34,7 @@ export default function useCount() {
 }
 ```
 
-```tsx title="src/usePrice.tsx"
+```tsx title="usePrice.tsx"
 import { useState } from "react";
 
 export default function usePrice() {
@@ -57,7 +57,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([useCount, usePrice]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"

@@ -62,7 +62,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([useCount, usePrice]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
@@ -81,7 +81,7 @@ createRoot(document.getElementById("root")!).render(
 
 In this sample, the count will increase when the `increase` button is clicked, and it will reset to 0 when the `reset` button is clicked.
 
-``` tsx title="Component.tsx"
+``` tsx title="component.tsx"
 import { useStore } from "houp";
 import useCount from "./useCount";
 
@@ -97,7 +97,7 @@ export function Component() {
 }
 ```
 
-``` tsx title="ResetButton.tsx"
+``` tsx title="resetButton.tsx"
 import { useProvider } from "houp";
 import useCount from "./useCount";
 
@@ -116,7 +116,7 @@ export function ResetButton() {
 
 In this sample, the count will increase when the `increase count` button is clicked, the price will increase when the `increase price` button is clicked, and both count and price will reset to 0 when the `reset all` button is clicked.
 
-``` tsx title="CountComponent.tsx"
+``` tsx title="countComponent.tsx"
 import { useStore } from "houp";
 import useCount from "./useCount";
 
@@ -132,7 +132,7 @@ export function CountComponent() {
 }
 ```
 
-``` tsx title="PriceComponent.tsx"
+``` tsx title="priceComponent.tsx"
 import { useStore } from "houp";
 import usePrice from "./usePrice";
 
@@ -148,7 +148,7 @@ export function PriceComponent() {
 }
 ```
 
-``` tsx title="ResetAllButton.tsx"
+``` tsx title="resetAllButton.tsx"
 import { useProvider } from "houp";
 import useCount from "./useCount";
 

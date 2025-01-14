@@ -3,6 +3,7 @@ sidebar_position: 2
 ---
 
 `useStore` is a React hook that returns the state of a registered store.
+It finds the nearest `StoreProvider` in the component tree that contains the specified hook and returns the hook's state from the provider.
 
 ```tsx
 useStore<S>(hook: StoreHook<S>): S;
@@ -47,7 +48,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([useProduct]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
@@ -132,7 +133,7 @@ This component will only re-render when the count > 110.
 This usually happens when you call `useStore`, but you have not added any provider to the component tree.
 
 ```tsx
-// cannot find useProduct in the component tree.
+// cannot find useProduct store in the component tree.
 const state = useStore(useProduct);
 ```
 
@@ -145,7 +146,7 @@ import { createProvider } from "houp";
 export const Provider = createProvider([useProduct]);
 ```
 
-```tsx title="main.tsx"
+```tsx title="index.tsx"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
@@ -167,7 +168,7 @@ createRoot(document.getElementById("root")!).render(
 This usually happens when you call `useStore`, but we cannot find it in the provider.
 
 ```tsx
-// cannot find useProduct in the provider.
+// cannot find useProduct store in the provider.
 const state = useStore(useProduct);
 ```
 
