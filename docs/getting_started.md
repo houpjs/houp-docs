@@ -5,7 +5,7 @@ sidebar_label: Getting Started
 title: Getting Started
 ---
 
-Houp(hook up) is a simple, fast, and reliable solution for sharing state across multiple components. Whether you're working on a new project or an existing one, integrating Houp is straightforward. It doesn't matter how the state is created or managed — Houp focuses solely on sharing it.
+Houp (hook up) is a simple, fast, and reliable solution for sharing a hook's state across multiple components. Whether you're working on a new project or an existing one, integrating Houp is straightforward. It doesn't matter how the hook is created or managed — Houp focuses solely on sharing it.
 
 
 ## Installation
